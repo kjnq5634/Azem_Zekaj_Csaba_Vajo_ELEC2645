@@ -92,15 +92,35 @@ MenuState Game1_Run(void) {
     
     // Game's own loop - runs until exit condition
     while (1) {
-        uint32_t frame_start = HAL_GetTick();
-        
-        // Read input
-       
-        uint32_t frame_time = HAL_GetTick() - frame_start;
-        if (frame_time < GAME1_FRAME_TIME_MS) {
-            HAL_Delay(GAME1_FRAME_TIME_MS - frame_time);
-        }
+         // FSM based on FIGHSTATE , updates between action -----> bossfight -----> menu and then loops depening on whether
+   //Player is alive, boss is alive or an action is selected.
+    switch (selected_state){
+      case ATKMENU : 
+      selected_state = FightMenuUpdate(&op);
+      break;
+      case FIGHT: 
+      selected_state = AttackFunction();
+      selected_state = BossAttackFunction(&b,&Bulb,&BulbParam);
+      break;
+      case ITEM:
+      selected_state = ITEMRUN();
+      selected_state = BossAttackFunction(&b,&Bulb,&BulbParam);
+      break;
+      case MERCY:
+      selected_state = MERCYMESSAGE();
+      selected_state = BossAttackFunction(&b,&Bulb,&BulbParam);
+      break;
+      case ACT :
+      selected_state = ACTMESSAGE();
+      selected_state = BossAttackFunction(&b,&Bulb,&BulbParam);
+      break;
+      case BOSSATTACK :
+      selected_state = BossAttackFunction(&b,&Bulb,&BulbParam);
+      selected_state = FightMenuUpdate(&op);
+      break;
     }
-    
-    return exit_state;  // Tell main where to go next
+
+      MusicPlayer(&b); // allows music to constantly play
+  }
+  return 0;
 }
