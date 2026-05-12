@@ -55,9 +55,18 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/shared/InputHandler.c
     
     # Game implementations (placeholder - students implement these)
+    #Game 1
     ${CMAKE_SOURCE_DIR}/game_1/Game_1.c
+    ${CMAKE_SOURCE_DIR}/game_1/FightMenu/FightMenu.c
+    ${CMAKE_SOURCE_DIR}/game_1/Boss/Boss.c
+    ${CMAKE_SOURCE_DIR}/game_1/HP/HP.c
+    ${CMAKE_SOURCE_DIR}/game_1/Actions/Actions.c
+    ${CMAKE_SOURCE_DIR}/game_1/Bulb/Bulb.c
+    ${CMAKE_SOURCE_DIR}/game_1/Music/Music.c
+    ${CMAKE_SOURCE_DIR}/game_1/Attack/Attack.c
+    ${CMAKE_SOURCE_DIR}/game_1/Hitbox/Hitbox.c
+    #GAME 2 
     ${CMAKE_SOURCE_DIR}/game_2/Game_2.c
-    ${CMAKE_SOURCE_DIR}/game_3/Game_3.c
 )
 
 # Add include paths
@@ -75,9 +84,18 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/shared
     
     # Game implementations
+    #GAME1
     ${CMAKE_SOURCE_DIR}/game_1
+    ${CMAKE_SOURCE_DIR}/game_1/FightMenu
+    ${CMAKE_SOURCE_DIR}/game_1/Boss
+    ${CMAKE_SOURCE_DIR}/game_1/HP
+    ${CMAKE_SOURCE_DIR}/game_1/Actions
+    ${CMAKE_SOURCE_DIR}/game_1/Bulb
+    ${CMAKE_SOURCE_DIR}/game_1/Music
+    ${CMAKE_SOURCE_DIR}/game_1/Attack
+    ${CMAKE_SOURCE_DIR}/game_1/Hitbox
+    #GAME 2
     ${CMAKE_SOURCE_DIR}/game_2
-    ${CMAKE_SOURCE_DIR}/game_3
 )
 
 # Add project symbols (macros)
