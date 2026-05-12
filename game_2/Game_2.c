@@ -49,6 +49,7 @@ static void Draw_Game_Over_Screen(void);
 
 MenuState Game2_Run(void) {
     MenuState exit_state = MENU_STATE_HOME;
+    LCD_Set_Palette(PALETTE_CUSTOM);
     game_over = 0;
     night_mode = 0;
     last_night_mode = 255;
@@ -121,6 +122,7 @@ MenuState Game2_Run(void) {
         HAL_Delay(200);
     }
     buzzer_off(&buzzer_cfg);
+    LCD_Set_Palette(PALETTE_DEFAULT);
     return exit_state;  //tell main where to go next
 }
 
