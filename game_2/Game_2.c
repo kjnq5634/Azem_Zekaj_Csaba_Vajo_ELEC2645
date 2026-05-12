@@ -11,8 +11,6 @@
 #include <stdio.h>
 #include <stdint.h>
 
-extern ST7789V2_cfg_t cfg0;
-extern Buzzer_cfg_t buzzer_cfg;
 extern Joystick_cfg_t joystick_cfg;
 extern Joystick_t joystick_data;
 
@@ -23,6 +21,7 @@ static uint32_t game_start_time = 0;
 static uint8_t night_mode = 0;
 static uint8_t last_night_mode = 255;
 static uint8_t game_over= 0;
+static uint8_t first_frame = 1;
 
 #define NIGHT_START_MS 5000 //when night mode starts in game
 #define NIGHT_DURATION_MS 5000 //how long night mode lasts
@@ -45,13 +44,15 @@ static void Draw_Ammo_UI(uint8_t);
 static void Draw_Game_Over_Screen(void);
 
 // Frame rate for this game (in milliseconds) - runs slower than Game 1
-#define GAME2_FRAME_TIME_MS 50  // ~20 FPS (different from Game 1!)
+#define FPS 60
+#define GAME2_FRAME_TIME_MS (1000/FPS)
 
 MenuState Game2_Run(void) {
     MenuState exit_state = MENU_STATE_HOME;
     game_over = 0;
     night_mode = 0;
     last_night_mode = 255;
+    first_frame = 1;
     game_start_time = HAL_GetTick();
  
     DuckEngine_Init(&duck_engine); //reset score, lives, ammo, crosshair and then spawn ducks
@@ -90,7 +91,7 @@ MenuState Game2_Run(void) {
         uint32_t now = HAL_GetTick();
 
         //limit update/render to 60FPS
-        if ((now - last_tick) < FRAME_TIME_MS) {
+        if ((now - last_tick) < GAME2_FRAME_TIME_MS) {
             continue;
         }
         last_tick = now;
@@ -109,26 +110,22 @@ MenuState Game2_Run(void) {
 
     while (1)
     {
-        //game over screen
-        LCD_Fill_Buffer(11);
-        LCD_printString("GAME OVER", 40, 40, 15, 3);
+        Input_Read();
+        Draw_Game_Over_Screen();
 
-        char score_str[32];
-        sprintf(score_str, "Score: %d", DuckEngine_GetScore(&duck_engine));
-        LCD_printString(score_str, 55, 95, 15, 2);
-
-        LCD_printString("Press RESET", 50, 140, 15, 2);
-
-        LCD_Refresh(&cfg0);
+        if(current_input.btn3_pressed) {
+            exit_state = MENU_STATE_HOME;
+            break;
+        }
+        
         HAL_Delay(200);
     }
     buzzer_off(&buzzer_cfg);
     return exit_state;  //tell main where to go next
 }
 
-void render_duckhunt(void)
+static void render_duckhunt(void)
 {
-    static uint8_t first_frame = 1;
     char info_str[32];
     //only redraw background on first frame or when game switches from night to day and vice versa
     //to avoid any flickering for user
@@ -187,7 +184,7 @@ static void Draw_Ammo_UI(uint8_t ammo)
 
 //Update and render functions:
 //update function
-void update_duckhunt(Joystick_t* joy, uint8_t fire_pressed, uint8_t reload_pressed)
+static void update_duckhunt(Joystick_t* joy, uint8_t fire_pressed, uint8_t reload_pressed)
 {
     uint32_t elapsed = HAL_GetTick() - game_start_time; //workout how long game has been running
 
@@ -214,5 +211,10 @@ static void Draw_Game_Over_Screen(void) {
     char store_str[32];
     LCD_Fill_Buffer(11);
     LCD_printString("GAME OVER", 40,40,15,3);
-    
+
+    sprintf(score_str, "Score: %d", DuckEngine_GetScore(&duck_engine));
+    LCD_printString(score_str, 55, 95, 15, 2);
+
+    LCD_printString("BTN3 To Menu", 45, 140, 15, 2);
+    LCD_Refresh(&cfg0);
 }
