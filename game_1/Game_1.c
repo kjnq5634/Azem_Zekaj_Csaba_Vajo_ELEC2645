@@ -92,6 +92,12 @@ MenuState Game1_Run(void) {
     
     // Game's own loop - runs until exit condition
     while (1) {
+        InputRead();
+         if (current_input.btn3_pressed) {
+            PWM_SetDuty(&pwm_cfg, 50);  // Reset LED
+            exit_state = MENU_STATE_HOME;
+            break;  // Exit game loop
+        }
          // FSM based on FIGHSTATE , updates between action -----> bossfight -----> menu and then loops depening on whether
    //Player is alive, boss is alive or an action is selected.
     switch (selected_state){
