@@ -67,6 +67,9 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/game_1/Hitbox/Hitbox.c
     #GAME 2 
     ${CMAKE_SOURCE_DIR}/game_2/Game_2.c
+    ${CMAKE_SOURCE_DIR}/game_2/GameSprites.c
+    ${CMAKE_SOURCE_DIR}/game_2/Background.c
+    ${CMAKE_SOURCE_DIR}/game_2/DuckEngine.c
 )
 
 # Add include paths
@@ -96,6 +99,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/game_1/Hitbox
     #GAME 2
     ${CMAKE_SOURCE_DIR}/game_2
+    ${CMAKE_SOURCE_DIR}/game_2/GameSprites
+    ${CMAKE_SOURCE_DIR}/game_2/Background
+    ${CMAKE_SOURCE_DIR}/game_2/DuckEngine
 )
 
 # Add project symbols (macros)
