@@ -58,7 +58,7 @@ FIGHTSTATE FightMenuUpdate(OptionSelection_t *op){
         uint32_t frame_start = HAL_GetTick();
         
         // Read input
-        Input_Read();
+         
         
         // Read current joystick position
         Joystick_Read(&joystick_cfg, &joystick_data);
