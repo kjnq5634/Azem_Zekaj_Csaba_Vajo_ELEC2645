@@ -51,7 +51,7 @@ void PeriphCommonClock_Config(void);
 // Each game implements a Run function that returns the next state
 MenuState Game1_Run(void);
 MenuState Game2_Run(void);
-MenuState Game3_Run(void);
+
 
 // ===== BUZZER CONFIGURATION =====
 // Configure buzzer to use TIM2 Channel 3 (current hardware setup)
@@ -262,11 +262,6 @@ int main(void)
             case MENU_STATE_GAME_2:
                 // Run Game 2 - returns next state when done
                 current_state = Game2_Run();
-                break;
-                
-            case MENU_STATE_GAME_3:
-                // Run Game 3 - returns next state when done
-                current_state = Game3_Run();
                 break;
                 
             default:
