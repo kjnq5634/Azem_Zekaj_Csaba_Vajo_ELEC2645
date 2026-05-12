@@ -48,7 +48,13 @@ static void Draw_Game_Over_Screen(void);
 #define GAME2_FRAME_TIME_MS 50  // ~20 FPS (different from Game 1!)
 
 MenuState Game2_Run(void) {
- DuckEngine_Init(&duck_engine); //reset score, lives, ammo, crosshair and then spawn ducks
+    MenuState exit_state = MENU_STATE_HOME;
+    game_over = 0;
+    night_mode = 0;
+    last_night_mode = 255;
+    game_start_time = HAL_GetTick();
+ 
+    DuckEngine_Init(&duck_engine); //reset score, lives, ammo, crosshair and then spawn ducks
     LCD_Fill_Buffer(0); 
     LCD_Refresh(&cfg0);
 
@@ -116,8 +122,8 @@ MenuState Game2_Run(void) {
         LCD_Refresh(&cfg0);
         HAL_Delay(200);
     }
-    
-    return exit_state;  // Tell main where to go next
+    buzzer_off(&buzzer_cfg);
+    return exit_state;  //tell main where to go next
 }
 
 void render_duckhunt(void)
