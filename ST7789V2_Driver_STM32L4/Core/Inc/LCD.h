@@ -116,7 +116,11 @@ Written by Aeron Jarvis and James Avery
 #define RGB565_GREY_13  0x9AD6  // #d1d1d1
 #define RGB565_GREY_14  0x3CE7  // #e7e7e7
 #define RGB565_GREY_15  0xFFFF  // #ffffff
-
+#define RGB565_SNIPER_GREY 0xA639
+#define RGB565_SNIPER_DARK_GREY 0xA95A
+#define RGB565_DUCK_GREEN 0x8002
+#define RGB565_DUCK_ORANGE 0xACFB
+#define RGB565_NIGHT_SKY 0x5F08
 
 
 // ========== Buffer Configuration ==========
