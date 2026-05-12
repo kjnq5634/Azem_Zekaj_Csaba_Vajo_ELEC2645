@@ -55,6 +55,8 @@ Bulbparams_t BulbParam;
 Bulb_t Bulb;
 Slider_t sli;
 DMG_t d;
+extern Buzzer_cfg_t buzzer_cfg;
+extern PWM_cfg_t pwm_cfg;
 /**
  * @brief Game 1 Implementation - Student can modify
  * 
@@ -63,10 +65,7 @@ DMG_t d;
  * Replace this with your actual game logic!
  */
 
-// Game state - customize for your game
-static uint32_t animation_counter = 0;
-static int16_t moving_x = 0;
-static int8_t move_direction = 1;
+
 
 // Frame rate for this game (in milliseconds)
 #define GAME1_FRAME_TIME_MS 30  // ~33 FPS
