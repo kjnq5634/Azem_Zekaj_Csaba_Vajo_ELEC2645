@@ -208,7 +208,7 @@ static void update_duckhunt(Joystick_t* joy, uint8_t fire_pressed, uint8_t reloa
 }
 
 static void Draw_Game_Over_Screen(void) {
-    char store_str[32];
+    char score_str[32];
     LCD_Fill_Buffer(11);
     LCD_printString("GAME OVER", 40,40,15,3);
 
