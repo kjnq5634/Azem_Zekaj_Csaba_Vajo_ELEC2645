@@ -72,7 +72,7 @@ void BossDamage(Boss *b , int damage){
     uint32_t AttackStart = HAL_GetTick();
     InitSlider(&sli,10);
     while (1){
-     Input_Read();
+      
      UpdateSlider(&sli);
      DrawAttackSlider(&sli, 3);
      if (current_input.btn2_pressed){
