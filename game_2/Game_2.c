@@ -5,6 +5,14 @@
 #include "Buzzer.h"
 #include "stm32l4xx_hal.h"
 #include <stdio.h>
+#include <stdint.h>
+
+static uint32_t game_start_time = 0;
+uint8_t night_mode = 0;
+static uint8_t last_night_mode = 255;
+
+#define NIGHT_START_MS 5000 //when night mode starts in game
+#define NIGHT_DURATION_MS 5000 //how long night mode lasts
 
 extern ST7789V2_cfg_t cfg0;
 extern Buzzer_cfg_t buzzer_cfg;  // Buzzer control
