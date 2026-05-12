@@ -3,13 +3,26 @@
 #include "Menu.h"
 #include "LCD.h"
 #include "Buzzer.h"
+#include "GameSprites.h"
+#include "Background.h"
+#include "DuckEngine.h"
+#include "Joystick.h"
 #include "stm32l4xx_hal.h"
 #include <stdio.h>
 #include <stdint.h>
 
+extern ST7789V2_cfg_t cfg0;
+extern Buzzer_cfg_t buzzer_cfg;
+extern Joystick_cfg_t joystick_cfg;
+extern Joystick_t joystick_data;
+
+static DuckEngine_t duck_engine;
+
+
 static uint32_t game_start_time = 0;
-uint8_t night_mode = 0;
+static uint8_t night_mode = 0;
 static uint8_t last_night_mode = 255;
+static uint8_t game_over= 0;
 
 #define NIGHT_START_MS 5000 //when night mode starts in game
 #define NIGHT_DURATION_MS 5000 //how long night mode lasts
@@ -25,81 +38,83 @@ extern Buzzer_cfg_t buzzer_cfg;  // Buzzer control
  * Replace this with your actual game logic!
  */
 
-// Game state - customize for your game
-static uint32_t animation_counter = 0;
-static int16_t moving_y = 0;
-static int8_t move_direction = 1;
 
-void update_duckhunt(Joystick_t* joy, uint8_t fire_pressed, uint8_t reload_pressed);
-void render_duckhunt(void);
+static void update_duckhunt(Joystick_t* joy, uint8_t fire_pressed, uint8_t reload_pressed);
+static void render_duckhunt(void);
+static void Draw_Ammo_UI(uint8_t);
+static void Draw_Game_Over_Screen(void);
 
 // Frame rate for this game (in milliseconds) - runs slower than Game 1
 #define GAME2_FRAME_TIME_MS 50  // ~20 FPS (different from Game 1!)
 
 MenuState Game2_Run(void) {
-    // Initialize game state
-    animation_counter = 0;
-    moving_y = 0;
-    move_direction = 1;
+ DuckEngine_Init(&duck_engine); //reset score, lives, ammo, crosshair and then spawn ducks
+    LCD_Fill_Buffer(0); 
+    LCD_Refresh(&cfg0);
+
+    //first title screen
+    LCD_printString("DUCK HUNT", 35, 40, 15, 3);
+    LCD_Refresh(&cfg0);
+    HAL_Delay(1000);
+
+    //instruction screen to explain controls before game
+    LCD_Fill_Buffer(0);
+    LCD_printString("Move Joystick", 30, 35, 15, 2);
+    LCD_printString("to AIM", 70, 65, 15, 2);
+    LCD_printString("Press BTN2", 45, 105, 15, 2);
+    LCD_printString("to SHOOT", 50, 135, 15, 2);
+    LCD_printString("BTN3 on Joystick", 35, 155, 15, 2);
+    LCD_printString("to Reload", 50, 175, 15, 2);
+    LCD_Refresh(&cfg0);
+    HAL_Delay(1800);
+
+    //final screen before game
+    LCD_Fill_Buffer(0);
+    LCD_printString("Shoot Ducks!", 45, 50, 15, 2);
+    LCD_printString("Dont miss!", 55, 90, 11, 2);
+    LCD_Refresh(&cfg0);
+    HAL_Delay(1200);
+
+    printf("Duck Hunt initialized\n");
+    game_start_time = HAL_GetTick();
+    uint32_t last_tick = HAL_GetTick();
     
-    // Play a brief startup sound
-    buzzer_tone(&buzzer_cfg, 1200, 30);  // 1.2kHz at 30% volume
-    HAL_Delay(50);  // Brief beep duration
-    buzzer_off(&buzzer_cfg);  // Stop the buzzer
-    
-    MenuState exit_state = MENU_STATE_HOME;  // Default: return to menu
-    
-    // Game's own loop - runs until exit condition
-    while (1) {
-        uint32_t frame_start = HAL_GetTick();
-        
-        // Read input
-        Input_Read();
-        
-        // Check if button was pressed to return to menu
-        if (current_input.btn3_pressed) {
-            exit_state = MENU_STATE_HOME;
-            break;  // Exit game loop
+    while (!game_over)
+    {
+        uint32_t now = HAL_GetTick();
+
+        //limit update/render to 60FPS
+        if ((now - last_tick) < FRAME_TIME_MS) {
+            continue;
         }
-        
-        // UPDATE: Game logic
-        animation_counter++;
-        
-        // Simple animation: move object up and down
-        moving_y += move_direction * 2;
-        if (moving_y >= 150 || moving_y <= 0) {
-            move_direction *= -1;
-        }
-        
-        // RENDER: Draw to LCD
-        LCD_Fill_Buffer(0);
-        
-        // Title
-        LCD_printString("GAME 2", 60, 10, 1, 3);
-        
-        // Simple animated object (moving box, vertical)
-        LCD_printString("[+]", 100, 60 + moving_y, 1, 3);
-        
-        // Display counter
-        char counter[32];
-        sprintf(counter, "Frame: %lu", animation_counter);
-        LCD_printString(counter, 50, 150, 1, 2);
-        
-        // Show frame rate
-        LCD_printString("Slower Demo", 20, 180, 1, 1);
-        LCD_printString("20 FPS", 20, 195, 1, 1);
-        
-        // Instructions
-        LCD_printString("Press BT3 to", 40, 220, 1, 1);
-        LCD_printString("Return to Menu", 40, 235, 1, 1);
-        
+        last_tick = now;
+
+        Joystick_Read(&joystick_cfg, &joystick_data); //read joystick pos for crosshair movement
+
+        Input_Read(); //read button inputs
+
+        uint8_t fire_pressed = current_input.btn2_pressed; //breadboard button that shoots
+        uint8_t reload_pressed = current_input.btn3_pressed; //joystick button reloads
+
+        //update gameplay logic then draws new frame
+        update_duckhunt(&joystick_data, fire_pressed, reload_pressed);
+        render_duckhunt();
+    }
+
+    while (1)
+    {
+        //game over screen
+        LCD_Fill_Buffer(11);
+        LCD_printString("GAME OVER", 40, 40, 15, 3);
+
+        char score_str[32];
+        sprintf(score_str, "Score: %d", DuckEngine_GetScore(&duck_engine));
+        LCD_printString(score_str, 55, 95, 15, 2);
+
+        LCD_printString("Press RESET", 50, 140, 15, 2);
+
         LCD_Refresh(&cfg0);
-        
-        // Frame timing - wait for remainder of frame time
-        uint32_t frame_time = HAL_GetTick() - frame_start;
-        if (frame_time < GAME2_FRAME_TIME_MS) {
-            HAL_Delay(GAME2_FRAME_TIME_MS - frame_time);
-        }
+        HAL_Delay(200);
     }
     
     return exit_state;  // Tell main where to go next
