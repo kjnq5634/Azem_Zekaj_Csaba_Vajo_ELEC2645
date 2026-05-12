@@ -34,7 +34,7 @@ LCD_Draw_Sprite_Scaled(104, 60, 32, 32, ONEwizardbaseform_data, 2);
 FIGHTSTATE leave_state = ATKMENU;
 while (1) {
      uint32_t act_start = HAL_GetTick();
-    Input_Read();
+     
     
     HAL_Delay(500);
     //Drawing the message and correctly initialising the screen
@@ -56,7 +56,7 @@ LCD_Draw_Sprite_Scaled(104, 60, 32, 32, ONEwizardbaseform_data, 2);
 FIGHTSTATE leave_state = ATKMENU;
 while (1) {
      uint32_t mercy_start = HAL_GetTick();
-    Input_Read();
+     
     
     HAL_Delay(500);
     LCD_Draw_Rect(10,160,220,70,1,0);
@@ -108,7 +108,7 @@ ITEMSTATES ItemSelection(ItemSelected_t *item){
      // set time based on built in clock 
       uint32_t item_start = HAL_GetTick();
      //Read current inputs (buttons)
-       Input_Read();
+        
 
      //Read current Joystick directions
       Joystick_Read(&joystick_cfg, &joystick_data);
@@ -160,7 +160,7 @@ ITEMSTATES ItemSelection(ItemSelected_t *item){
     static uint32_t batteryamount = BATTERYMAXAMOUNT;
     uint32_t battery_start = HAL_GetTick();
     while (1){
-    Input_Read();
+     
     // after 5 uses the battery item has 0 effect
     if (batteryamount == 0){
         return ATKMENU;
@@ -191,7 +191,7 @@ ITEMSTATES ItemSelection(ItemSelected_t *item){
     uint32_t capacitor_start = HAL_GetTick();
     static uint32_t capacitoramount = CAPACITROMAXAMOUNT;
     while (1){
-    Input_Read();
+     
     if(capacitoramount == 0){
         return ATKMENU;
     }
@@ -219,7 +219,7 @@ FIGHTSTATE ITEMRUN(void){
      ITEMSTATES BatteryFunc(Bulbparams_t *BulbParam);
      ITEMSTATES selected_item = SELECTITEM;
           while (1){
-            Input_Read();
+             
      //   select between each different item
          switch (selected_item){
           case SELECTITEM: selected_item = ItemSelection(&item);
@@ -241,7 +241,7 @@ FIGHTSTATE ITEMRUN(void){
   
     while (1)
     {   
-        Input_Read();
+         
         UpdateSlider(&sli);
         //Slider render
         LCD_Fill_Buffer(0);
