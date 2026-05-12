@@ -22,6 +22,9 @@ static uint32_t animation_counter = 0;
 static int16_t moving_y = 0;
 static int8_t move_direction = 1;
 
+void update_duckhunt(Joystick_t* joy, uint8_t fire_pressed, uint8_t reload_pressed);
+void render_duckhunt(void);
+
 // Frame rate for this game (in milliseconds) - runs slower than Game 1
 #define GAME2_FRAME_TIME_MS 50  // ~20 FPS (different from Game 1!)
 
@@ -92,4 +95,95 @@ MenuState Game2_Run(void) {
     }
     
     return exit_state;  // Tell main where to go next
+}
+
+void render_duckhunt(void)
+{
+    static uint8_t first_frame = 1;
+    char info_str[32];
+    //only redraw background on first frame or when game switches from night to day and vice versa
+    //to avoid any flickering for user
+    if (first_frame || night_mode != last_night_mode) {
+        if (night_mode) {
+            LCD_Fill_Buffer(1); //night sky background colour
+            Background_Draw_Night(); //draws night scenery
+        } else {
+            LCD_Fill_Buffer(7); //daytime sky background colour
+            Background_Draw(); //draw day scenery
+        }
+        //draw sniper as a static foreground object once the background is drawn
+        Sniper_Draw(165, 179);
+        first_frame = 0;
+        last_night_mode = night_mode;
+    }
+    //draw moving objects like ducks, crosshair, gun, hitmarker
+    DuckEngine_Draw(&duck_engine, night_mode ? 1 : 7, night_mode);
+
+    //clear and redraw score/lives each frame
+    LCD_Draw_Rect(0, 0, 240, 22, night_mode ? 1 : 7, 1);
+    sprintf(info_str, "Lives:%d", DuckEngine_GetLives(&duck_engine));
+    LCD_printString(info_str, 5, 5, 15, 2);
+    sprintf(info_str, "Score:%d", DuckEngine_GetScore(&duck_engine));
+    LCD_printString(info_str, 135, 5, 15, 2);
+
+    //draw ammo display at bottom left
+    Draw_Ammo_UI(DuckEngine_GetAmmo(&duck_engine));
+    LCD_Refresh(&cfg0);
+}
+
+static void Draw_Ammo_UI(uint8_t ammo)
+{
+    const uint16_t start_x = 8;
+    const uint16_t start_y = 202;
+    const uint16_t bullet_w = 7;
+    const uint16_t bullet_h = 28;
+    const uint16_t gap = 4;
+
+    for (uint8_t i = 0; i < 6; i++) { //draw six bullet icons at bottom left of screen
+        uint16_t x = start_x + i * (bullet_w + gap);
+        uint16_t y = start_y;
+
+        //empty bullet black
+        LCD_Draw_Rect(x, y, bullet_w, bullet_h, 0, 1);
+
+        //white bullet border
+        LCD_Draw_Rect(x, y, bullet_w, bullet_h, 15, 0);
+
+        //bright pink fill if bullet is loaded
+        if (i < ammo) {
+            LCD_Draw_Rect(x + 2, y + 2, bullet_w - 4, bullet_h - 4, 12, 1);
+        }
+    }
+}
+
+//Update and render functions:
+//update function
+void update_duckhunt(Joystick_t* joy, uint8_t fire_pressed, uint8_t reload_pressed)
+{
+    uint32_t elapsed = HAL_GetTick() - game_start_time; //workout how long game has been running
+
+    //enables night mode for fixed amount of time
+    if (elapsed >= NIGHT_START_MS && elapsed < NIGHT_START_MS + NIGHT_DURATION_MS) {
+        night_mode = 1;
+    } else {
+        night_mode = 0;
+    }
+
+    //slow ducks down during night mode, otherwise use normal speed multiplier, the short hand for an if statement is used quite a bit when convenient for me
+    //in actuality the 0.5 rounds down to 0 but I like to keep it 0.5 to indicate here as well that its half speed
+    DuckEngine_SetSpeedMultiplier(&duck_engine, night_mode ? 0.5 : 1);
+
+    uint8_t lives = DuckEngine_Update(&duck_engine, joy, fire_pressed, reload_pressed);
+
+    if (lives == 0) { //end game when all lives are lost
+        buzzer_off(&buzzer_cfg);
+        game_over = 1;
+    }
+}
+
+static void Draw_Game_Over_Screen(void) {
+    char store_str[32];
+    LCD_Fill_Buffer(11);
+    LCD_printString("GAME OVER", 40,40,15,3);
+    
 }
