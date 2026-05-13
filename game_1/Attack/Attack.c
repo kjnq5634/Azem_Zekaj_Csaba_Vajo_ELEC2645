@@ -66,25 +66,4 @@ void DrawAttackSlider(Slider_t *sli,int col){
 void BossDamage(Boss *b , int damage){
     b->hp -= damage;
 }
-/*FIGHTSTATE AttackSliderMainFunction(void){
-    RenderSliderSprite();
-    DrawBossPhase1(&b);
-    uint32_t AttackStart = HAL_GetTick();
-    InitSlider(&sli,10);
-    while (1){
-      
-     UpdateSlider(&sli);
-     DrawAttackSlider(&sli, 3);
-     if (current_input.btn2_pressed){
-            //sets value of damage based on x
-            int dmg = GetDamage(sli.x);
-            BossDamage(&b,dmg);
-     }
 
-      DrawAttackSlider(&sli, 2);
-        LCD_Refresh(&cfg0);
-    uint32_t attack_time = HAL_GetTick() - AttackStart;
-        if (attack_time < 200) {
-            HAL_Delay(200 - attack_time);}
-    
-}}*/
