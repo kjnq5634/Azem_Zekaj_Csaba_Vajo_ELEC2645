@@ -22,7 +22,7 @@ MenuTest/
 │   └── InputHandler.h/c
 ├── game_1/            # Azem's game
 │   └── Game_1.c
-├── game_2/            # cSABA's game
+├── game_2/            # Csabas's game
 │   └── Game_2.c
 ├── Joystick/          # Hardware drivers
 ├── PWM/
@@ -44,14 +44,12 @@ while(1) {
         case MENU: Menu_Update(); break;
         case GAME_1: Game1_Update(); break;
         case GAME_2: Game2_Update(); break;
-        case GAME_3: Game3_Update(); break;
     }
     
     switch(current_state) {    // RENDER
         case MENU: Menu_Render(); break;
         case GAME_1: Game1_Render(); break;
         case GAME_2: Game2_Render(); break;
-        case GAME_3: Game3_Render(); break;
     }
 }
 ```
